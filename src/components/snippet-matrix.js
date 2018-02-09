@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import faker from 'faker'
 
 import Cell from './cell'
 import { UP, DOWN, LEFT, RIGHT } from './constants'
@@ -9,9 +10,12 @@ class SnippetMatrix extends Component {
 
     this.state = {
       currentPosition: [0, 0],
-      numRows: 10,
-      numCols: 8
+      numRows: 20,
+      numCols: 4
     }
+
+    this.tableHeadings = this.createTableHeadings()
+
   }
 
   // lifecycle methods
@@ -23,6 +27,16 @@ class SnippetMatrix extends Component {
   updateFocus () {
     const position = this.state.currentPosition.toString()
     this.refs[`position(${position})`].setFocus()
+  }
+
+  setPosition (i, j) {
+    const pos = this.state.currentPosition
+
+    if (pos[0] !== i || pos[1] !== j) {
+      this.setState({
+        currentPosition: [i, j]
+      })
+    }
   }
 
   updatePosition (step) {
@@ -77,7 +91,9 @@ class SnippetMatrix extends Component {
       cells.push(
         <td key={id}>
           <Cell
-            content={id}
+            position={id}
+            setPosition={this.setPosition.bind(this)}
+            content={faker.hacker.phrase()}
             shiftFocus={this.shiftFocus.bind(this)}
             ref={`position(${id})`}
           />
@@ -102,9 +118,28 @@ class SnippetMatrix extends Component {
     return rows
   }
 
+  createTableHeadings () {
+    const headings = []
+
+    for (let i = 0; i < this.state.numCols; i++) {
+      headings.push(
+        <th key={i}>
+          {faker.commerce.productName()}
+        </th>
+      )
+    }
+
+    return headings
+  }
+
   render () {
     return (
-      <table>
+      <table className='table'>
+        <thead>
+          <tr>
+            {this.tableHeadings}
+          </tr>
+        </thead>
         <tbody>
           {this.renderRows()}
         </tbody>

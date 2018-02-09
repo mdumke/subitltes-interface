@@ -4,6 +4,13 @@ import ContentEditable from 'react-contenteditable'
 import { setEndOfContenteditable } from '../utils/utils'
 import { UP, DOWN, LEFT, RIGHT } from './constants'
 
+// choose bootstrap alert classes
+const colors = {
+  default: '---',
+  focussed: 'info',
+  active: 'warning'
+}
+
 class CellContent extends ContentEditable {
   setFocus () {
     this.htmlEl.focus()
@@ -16,6 +23,7 @@ class Cell extends Component {
 
     this.state = {
       isEditable: false,
+      color: colors.default,
       html: this.props.content
     }
   }
@@ -23,6 +31,36 @@ class Cell extends Component {
   // helper functions
   setFocus () {
     this.refs.cell.setFocus()
+  }
+
+  // main cell events
+  handleBlur (e) {
+    this.setState({
+      isEditable: false,
+      color: colors.default
+    })
+  }
+
+  handleFocus (e) {
+    this.setState({
+      color: colors.focussed
+    })
+  }
+
+  beginEditing () {
+    this.setState({
+      isEditable: true,
+      color: colors.active
+    })
+
+    setEndOfContenteditable(this.refs.cell.htmlEl)
+  }
+
+  pauseEditing () {
+    this.setState({
+      isEditable: false,
+      color: colors.focussed
+    })
   }
 
   finalizeCell () {
@@ -33,36 +71,24 @@ class Cell extends Component {
     this.props.shiftFocus(DOWN)
   }
 
-  makeEditable () {
-    this.setState({
-      isEditable: true
-    })
-
-    setEndOfContenteditable(this.refs.cell.htmlEl)
-  }
-
-  // handlers
   handleChange (e) {
     this.setState({
       html: e.target.value
     })
   }
 
-  handleDoubleClick (e) {
-    this.makeEditable()
+  handleClick (e) {
+    const [i, j] = this.props.position.split(',').map(Number)
+    this.props.setPosition(i, j)
   }
 
-  handleBlur (e) {
-    this.setState({
-      isEditable: false
-    })
+  handleDoubleClick (e) {
+    this.beginEditing()
   }
 
   handleKeyDown (e) {
     // in navigation mode
     if (!this.state.isEditable) {
-      e.preventDefault()
-
       if (e.key === 'ArrowDown' || e.key === 'j') {
         this.props.shiftFocus(DOWN)
       }
@@ -80,10 +106,12 @@ class Cell extends Component {
       }
 
       if (e.key === 'Enter') {
+        e.preventDefault()
+
         if (e.shiftKey) {
           this.finalizeCell()
         } else {
-          this.makeEditable()
+          this.beginEditing()
         }
       }
 
@@ -92,17 +120,12 @@ class Cell extends Component {
 
     // switch to navigation mode
     if (e.key === 'Escape') {
-      this.setState({
-        isEditable: false
-      })
+      this.pauseEditing()
     }
 
     if (e.key === 'Enter') {
-      if (e.shiftKey) {
-        this.finalizeCell()
-      } else {
-        e.preventDefault()
-      }
+      this.finalizeCell()
+      e.preventDefault()
     }
   }
 
@@ -110,11 +133,14 @@ class Cell extends Component {
     return (
       <CellContent
         tabIndex='-1'
+        className={`bg-${this.state.color}`}
         ref='cell'
         html={this.state.html}
         disabled={!this.state.isEditable}
         onBlur={this.handleBlur.bind(this)}
+        onFocus={this.handleFocus.bind(this)}
         onKeyDown={this.handleKeyDown.bind(this)}
+        onClick={this.handleClick.bind(this)}
         onDoubleClick={this.handleDoubleClick.bind(this)}
         onChange={this.handleChange.bind(this)}
       />
