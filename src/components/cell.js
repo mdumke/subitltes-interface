@@ -6,9 +6,9 @@ import { UP, DOWN, LEFT, RIGHT } from './constants'
 
 // choose bootstrap alert classes
 const colors = {
-  default: '---',
-  focussed: 'info',
-  active: 'warning'
+  default: 'light',
+  focussed: 'warning',
+  active: 'danger'
 }
 
 class CellContent extends ContentEditable {
@@ -132,8 +132,9 @@ class Cell extends Component {
   render () {
     return (
       <CellContent
+        tagName='td'
         tabIndex='-1'
-        className={`bg-${this.state.color}`}
+        className={`alert-${this.state.color} ${this.state.isEditable ? 'active' : ''}`}
         ref='cell'
         html={this.state.html}
         disabled={!this.state.isEditable}

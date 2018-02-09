@@ -4,14 +4,14 @@ import faker from 'faker'
 import Cell from './cell'
 import { UP, DOWN, LEFT, RIGHT } from './constants'
 
-class SnippetMatrix extends Component {
+class EditableMatrix extends Component {
   constructor (props) {
     super(props)
 
     this.state = {
       currentPosition: [0, 0],
-      numRows: 20,
-      numCols: 4
+      numRows: 100,
+      numCols: 3
     }
 
     this.tableHeadings = this.createTableHeadings()
@@ -81,23 +81,40 @@ class SnippetMatrix extends Component {
     this.updateFocus()
   }
 
+  createTableHeadings () {
+    const headings = [<th key='-1'></th>]
+
+    for (let i = 0; i < this.state.numCols; i++) {
+      headings.push(
+        <th key={i}>
+          {faker.commerce.productName()}
+        </th>
+      )
+    }
+
+    return headings
+  }
+
+
   // render methods
   renderCells (i) {
     const cells = []
+
+    const idCell = <td key={[i, -1].toString()}>{i + 1}</td>
+    cells.push(idCell)
 
     for (let j = 0; j < this.state.numCols; j++) {
       const id = [i, j].toString()
 
       cells.push(
-        <td key={id}>
-          <Cell
-            position={id}
-            setPosition={this.setPosition.bind(this)}
-            content={faker.hacker.phrase()}
-            shiftFocus={this.shiftFocus.bind(this)}
-            ref={`position(${id})`}
-          />
-        </td>
+        <Cell
+          key={id}
+          position={id}
+          setPosition={this.setPosition.bind(this)}
+          content={faker.hacker.phrase()}
+          shiftFocus={this.shiftFocus.bind(this)}
+          ref={`position(${id})`}
+        />
       )
     }
 
@@ -118,20 +135,6 @@ class SnippetMatrix extends Component {
     return rows
   }
 
-  createTableHeadings () {
-    const headings = []
-
-    for (let i = 0; i < this.state.numCols; i++) {
-      headings.push(
-        <th key={i}>
-          {faker.commerce.productName()}
-        </th>
-      )
-    }
-
-    return headings
-  }
-
   render () {
     return (
       <table className='table'>
@@ -148,4 +151,4 @@ class SnippetMatrix extends Component {
   }
 }
 
-export default SnippetMatrix
+export default EditableMatrix

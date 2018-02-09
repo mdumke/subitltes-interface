@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 
-import SnippetMatrix from './components/snippet-matrix'
+import EditableMatrix from './components/editable-matrix'
 
 class App extends Component {
   render () {
     return (
-      <SnippetMatrix />
+      <EditableMatrix />
     )
   }
 }
