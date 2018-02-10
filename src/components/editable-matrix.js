@@ -1,21 +1,28 @@
 import React, { Component } from 'react'
 import faker from 'faker'
+import md5 from 'md5'
 
 import Cell from './cell'
+import { idGenerator } from '../utils/utils'
 import { UP, DOWN, LEFT, RIGHT } from './constants'
 
 class EditableMatrix extends Component {
   constructor (props) {
     super(props)
 
+    const numRows = 20
+    const numCols = 3
+
+    this.idGenerator = idGenerator(numRows * numCols)
+
     this.state = {
       currentPosition: [0, 0],
-      numRows: 100,
-      numCols: 3
+      numRows,
+      numCols,
+      tableData: this.createTableData(numRows, numCols)
     }
 
     this.tableHeadings = this.createTableHeadings()
-
   }
 
   // lifecycle methods
@@ -81,6 +88,36 @@ class EditableMatrix extends Component {
     this.updateFocus()
   }
 
+  insertRow (rowId) {
+    const data = [...this.state.tableData]
+
+    const newRow = []
+
+    for (let i = 0; i < this.state.numCols; i++) {
+      newRow.push({
+        key: md5(Math.random()),
+        text: ''
+      })
+    }
+
+    data.splice(rowId + 1, 0, newRow)
+
+    this.setState({
+      numRows: this.state.numRows + 1,
+      tableData: data
+    })
+  }
+
+  handleChange ([i, j], newText) {
+    const newData = [...this.state.tableData]
+
+    newData[i][j].text = newText
+
+    this.setState({
+      tableData: newData
+    })
+  }
+
   createTableHeadings () {
     const headings = [<th key='-1'></th>]
 
@@ -95,23 +132,43 @@ class EditableMatrix extends Component {
     return headings
   }
 
+  createTableData (numRows, numCols) {
+    const data = []
 
-  // render methods
+    for (let i = 0; i < numRows; i++) {
+      data.push([])
+
+      for (let j = 0; j < numCols; j++) {
+        data[i].push({
+          key: md5(this.idGenerator.next().value),
+          text: faker.hacker.phrase()
+        })
+      }
+    }
+
+    return data
+  }
+
+  // renders one row of cells
   renderCells (i) {
     const cells = []
 
-    const idCell = <td key={[i, -1].toString()}>{i + 1}</td>
+    // the first cell has the row id
+    const idCell = <td key={[i, -1].toString()}>{i}</td>
     cells.push(idCell)
 
+    // collect all cells of this rows
     for (let j = 0; j < this.state.numCols; j++) {
       const id = [i, j].toString()
 
       cells.push(
         <Cell
-          key={id}
+          key={this.state.tableData[i][j].key}
           position={id}
           setPosition={this.setPosition.bind(this)}
-          content={faker.hacker.phrase()}
+          insertRow={this.insertRow.bind(this)}
+          propagateChange={this.handleChange.bind(this)}
+          content={this.state.tableData[i][j].text}
           shiftFocus={this.shiftFocus.bind(this)}
           ref={`position(${id})`}
         />

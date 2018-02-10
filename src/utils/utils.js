@@ -1,3 +1,5 @@
+import { shuffle } from 'lodash'
+
 export const setEndOfContenteditable = contentEditableElement => {
   // from https://stackoverflow.com/questions/1125292/how-to-move-cursor-to-end-of-contenteditable-entity/3866442#3866442
   var range,selection;
@@ -11,10 +13,26 @@ export const setEndOfContenteditable = contentEditableElement => {
       selection.addRange(range);//make the range you have just created the visible selection
   }
   else if(document.selection)//IE 8 and lower
-  { 
+  {
       range = document.body.createTextRange();//Create a range (a range is a like the selection but invisible)
       range.moveToElementText(contentEditableElement);//Select the entire contents of the element with the range
       range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
       range.select();//Select the range (make it the visible selection
   }
 }
+
+// yields *total* random integers between 0 and *total*
+export function* idGenerator (total) {
+  let pool = []
+
+  for (let i = 0; i < total; i++) {
+    pool.push(i)
+  }
+
+  pool = shuffle(pool)
+
+  while (pool.length) {
+    yield(pool.shift())
+  }
+}
+

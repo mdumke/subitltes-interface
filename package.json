@@ -12,6 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "faker": "^4.1.0",
+    "lodash": "^4.17.5",
+    "md5": "^2.2.1",
     "react": "^16.2.0",
     "react-contenteditable": "^2.0.5",
     "react-dom": "^16.2.0"

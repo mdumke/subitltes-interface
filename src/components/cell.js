@@ -33,6 +33,10 @@ class Cell extends Component {
     this.refs.cell.setFocus()
   }
 
+  getPosition () {
+    return this.props.position.split(',').map(Number)
+  }
+
   // main cell events
   handleBlur (e) {
     this.setState({
@@ -71,14 +75,24 @@ class Cell extends Component {
     this.props.shiftFocus(DOWN)
   }
 
+  insertRow () {
+    this.setState({
+      isEditable: false
+    })
+
+    this.props.insertRow(this.getPosition()[0])
+  }
+
   handleChange (e) {
     this.setState({
       html: e.target.value
     })
+
+    this.props.propagateChange(this.getPosition(), e.target.value)
   }
 
   handleClick (e) {
-    const [i, j] = this.props.position.split(',').map(Number)
+    const [i, j] = this.getPosition()
     this.props.setPosition(i, j)
   }
 
@@ -110,6 +124,8 @@ class Cell extends Component {
 
         if (e.shiftKey) {
           this.finalizeCell()
+        } else if (e.altKey) {
+          this.insertRow()
         } else {
           this.beginEditing()
         }
