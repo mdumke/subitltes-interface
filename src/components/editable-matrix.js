@@ -10,8 +10,8 @@ class EditableMatrix extends Component {
   constructor (props) {
     super(props)
 
-    const numRows = 20
-    const numCols = 3
+    const numRows = 5
+    const numCols = 2
 
     this.idGenerator = idGenerator(numRows * numCols)
 
@@ -47,20 +47,20 @@ class EditableMatrix extends Component {
   }
 
   updatePosition (step) {
-    const newPosition = this.state.currentPosition
+    let [row, col] = this.state.currentPosition
 
     // step as far as possible, but stay within specified ranges
-    newPosition[0] += step[0]
-    newPosition[0] = Math.min(newPosition[0], this.state.numRows - 1)
-    newPosition[0] = Math.max(newPosition[0], 0)
+    row += step[0]
+    row = Math.min(row, this.state.numRows - 1)
+    row = Math.max(row, 0)
 
-    newPosition[1] += step[1]
-    newPosition[1] = Math.min(newPosition[1], this.state.numCols - 1)
-    newPosition[1] = Math.max(newPosition[1], 0)
+    col += step[1]
+    col = Math.min(col, this.state.numCols - 1)
+    col = Math.max(col, 0)
 
     this.setState({
-      currentPosition: newPosition
-    })
+      currentPosition: [row, col]
+    }, this.updateFocus)
   }
 
   shiftFocus (direction) {
@@ -85,7 +85,6 @@ class EditableMatrix extends Component {
     }
 
     this.updatePosition(step)
-    this.updateFocus()
   }
 
   insertRow (rowId) {

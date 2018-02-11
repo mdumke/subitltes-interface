@@ -35,4 +35,3 @@ export function* idGenerator (total) {
     yield(pool.shift())
   }
 }
-
