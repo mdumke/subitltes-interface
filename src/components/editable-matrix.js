@@ -10,7 +10,7 @@ class EditableMatrix extends Component {
   constructor (props) {
     super(props)
 
-    const numRows = 5
+    const numRows = 30
     const numCols = 2
 
     this.idGenerator = idGenerator(numRows * numCols)
@@ -46,24 +46,38 @@ class EditableMatrix extends Component {
     }
   }
 
-  updatePosition (step) {
+  // sets the new position on the state
+  //
+  // @param {Array(number)} step - the direction to go to
+  // @param {object} options - specifies behavior after update
+  // @param {boolean} options.allowRowInsert - if true, appends row if at the end
+  updatePosition (step, options = {}) {
     let [row, col] = this.state.currentPosition
 
-    // step as far as possible, but stay within specified ranges
-    row += step[0]
-    row = Math.min(row, this.state.numRows - 1)
-    row = Math.max(row, 0)
+    const appendRow =
+      options.allowRowInsert &&
+      row === this.state.numRows - 1 &&
+      step[0] > 0
 
-    col += step[1]
-    col = Math.min(col, this.state.numCols - 1)
-    col = Math.max(col, 0)
+    if (appendRow) {
+      this.insertRow(row++)
+    } else {
+      // step as far as possible, but stay within specified ranges
+      row += step[0]
+      row = Math.min(row, this.state.numRows - 1)
+      row = Math.max(row, 0)
+
+      col += step[1]
+      col = Math.min(col, this.state.numCols - 1)
+      col = Math.max(col, 0)
+    }
 
     this.setState({
       currentPosition: [row, col]
     }, this.updateFocus)
   }
 
-  shiftFocus (direction) {
+  shiftFocus (direction, options = {}) {
     let step
 
     switch (direction) {
@@ -84,7 +98,7 @@ class EditableMatrix extends Component {
         step = [0, 0]
     }
 
-    this.updatePosition(step)
+    this.updatePosition(step, options)
   }
 
   insertRow (rowId) {
@@ -149,11 +163,11 @@ class EditableMatrix extends Component {
   }
 
   // renders one row of cells
-  renderCells (i) {
+  renderRow (i) {
     const cells = []
 
-    // the first cell has the row id
-    const idCell = <td key={[i, -1].toString()}>{i}</td>
+    // the first cell has the row id (correct 0-indexed counting)
+    const idCell = <td key={[i, -1].toString()}>{i + 1}</td>
     cells.push(idCell)
 
     // collect all cells of this rows
@@ -183,7 +197,7 @@ class EditableMatrix extends Component {
     for (let i = 0; i < this.state.numRows; i++) {
       rows.push(
         <tr key={i}>
-          {this.renderCells(i)}
+          {this.renderRow(i)}
         </tr>
       )
     }

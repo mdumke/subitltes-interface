@@ -70,9 +70,11 @@ class Cell extends Component {
   finalizeCell () {
     this.setState({
       isEditable: false
+    }, () => {
+      this.props.shiftFocus(DOWN, {
+        allowRowInsert: true
+      })
     })
-
-    this.props.shiftFocus(DOWN)
   }
 
   insertRow () {
@@ -140,8 +142,8 @@ class Cell extends Component {
     }
 
     if (e.key === 'Enter') {
-      this.finalizeCell()
       e.preventDefault()
+      this.finalizeCell()
     }
   }
 
