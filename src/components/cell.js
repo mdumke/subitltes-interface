@@ -152,6 +152,7 @@ class Cell extends Component {
         tabIndex='-1'
         className={`alert-${this.state.color} ${this.state.isEditable ? 'active' : ''}`}
         ref='cell'
+        spellCheck='false'
         html={this.state.html}
         disabled={!this.state.isEditable}
         onBlur={this.handleBlur.bind(this)}
